@@ -3,9 +3,16 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="/javascripts/jquery-ui-1.9.2.custom.min.js"></script>
+    <script src="/javascripts/client.js"></script>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <h1>オレオレTODOリスト</h1>
+    <div>
+        <input type="button" id="create-button" value="create" />
+    </div>
+    <div id="field"></div>
   </body>
-</html>
+</html
