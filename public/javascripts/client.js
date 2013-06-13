@@ -46,10 +46,10 @@ jQuery(function($) {
 			)
 			.append($('<div/>')
 				.append($('<span class="type"></span>')
-					.val(todoData.type)
+					.text(todoData.type)
 				)
 				.append($('<span class="text"></span>')
-					.val(todoData.text)
+					.text(todoData.text)
 				)
 				.append($('<a href="#" class="edit">edit</a>')
 				)
@@ -61,30 +61,22 @@ jQuery(function($) {
 		$(document).on('click', '#' + id + ' .edit', function(){
 			$('#' + id + ' .type').replaceWith('<textarea class="type"/>');
 			$('#' + id + ' .text').replaceWith('<textarea class="text"/>');
+			$('#' + id + ' .text').val(todoData.text);
+			//テキストが変更された場合、update-textイベントを送る。
+			var $text = $('.todo').find('.text');
+			$text.keyup(function(){
+				socket.emit('update-text',{_id:id,text:$text.val()});
+			});
+			
 			$('#' + id + ' .edit').replaceWith('<a href="#" class="finish">finish</a>');
+
 			// finishボタンを押したらtextarea非表示
 			$('#' + id + ' .finish').on('click', function(){
 				$('#' + id + ' .type').replaceWith('<span class="type"/>');
 				$('#' + id + ' .text').replaceWith('<span class="text"/>');
+				$('#' + id + ' .text').text($text.val());
 				$('#' + id + ' .finish').replaceWith('<a href="#" class="edit">edit</a>');
 			});
-		});
-/*
-		//メモをドラッグした時、moveイベントを送る。
-		//(jQuery UIを使用)
-		element.draggable({stop:function(e,ui){
-			var pos = {
-				left:ui.position.left
-				,top:ui.position.top
-			};
-			socket.emit('move',{_id:id,position:pos});
-		}});
-*/
-		//テキストが変更された場合、update-textイベントを送る。
-		var $text = element.find('.text');
-		console.log($text.val());
-		$text.keyup(function(){
-			socket.emit('update-text',{_id:id,text:$text.val()});
 		});
 
 		//☓ボタンを押した場合removeイベントを送る
