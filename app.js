@@ -83,6 +83,7 @@ io.sockets.on('connection',function(socket){
     socket.on('update-text',function(data){
         Todo.findOne({_id:data._id},function(err,todo){
             if(err || todo === null){return;}
+            todo.type = data.type;
             todo.text = data.text;
             todo.save();
             socket.broadcast.json.emit('update-text',data);

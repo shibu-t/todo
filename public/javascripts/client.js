@@ -23,7 +23,7 @@ jQuery(function($) {
 	//createボタンが押された時、新規メモを作成するようにcreateイベントを送信する。
 	$('#create-button').click(function(){
 		var todoData = {
-		    type: '',
+		    type: 'will do',
 		    text: '',
 		    date: new Date(),
 		};
@@ -46,7 +46,7 @@ jQuery(function($) {
 			)
 			.append($('<div/>')
 				.append($('<span class="type"></span>')
-					.text(todoData.type)
+					.text('[' + todoData.type + '] ')
 				)
 				.append($('<span class="text"></span>')
 					.text(todoData.text)
@@ -59,22 +59,50 @@ jQuery(function($) {
 
 		// editボタンを押したらtextarea表示
 		$(document).on('click', '#' + id + ' .edit', function(){
-			$('#' + id + ' .type').replaceWith('<textarea class="type"/>');
+			var typeDisplayed = $('#' + id + ' .type').text();
+			var textDisplayed = $('#' + id + ' .text').text();
+			var typePosted = "";
+			var textPosted = "";
+
+			// 編集モードに切り替える
+			$('#' + id + ' .type').replaceWith('<select class="type" name=\"' + id + '\"/>');
+			$('#' + id + ' .type').append('<option class=\"will\" value=\"1\">will do</option>')
+			$('#' + id + ' .type').append('<option class=\"doing\" value=\"2\">doing</option>')
+			$('#' + id + ' .type').append('<option class=\"done\" value=\"3\">done</option>')
 			$('#' + id + ' .text').replaceWith('<textarea class="text"/>');
-			$('#' + id + ' .text').val(todoData.text);
-			//テキストが変更された場合、update-textイベントを送る。
-			var $text = $('.todo').find('.text');
-			$text.keyup(function(){
-				socket.emit('update-text',{_id:id,text:$text.val()});
-			});
-			
+			$('#' + id + ' .text').val(textDisplayed);
 			$('#' + id + ' .edit').replaceWith('<a href="#" class="finish">finish</a>');
+
+			// selectタグのselectedを設定
+			if(typeDisplayed === '[will do] ') {
+				$("select[name=\"" + id + "\"]").val(1);
+			} else if (typeDisplayed === '[doing] ') {
+				$("select[name=\"" + id + "\"]").val(2);
+			} else {
+				$("select[name=\"" + id + "\"]").val(3);
+			}
+
+			// selectタグのselectedになっている中身を取得
+			$("select[name=\"" + id + "\"]").change(function () {
+				$("select option:selected").each(function () {
+					typePosted = $(this).text();
+				});
+			})
+			.trigger('change');
 
 			// finishボタンを押したらtextarea非表示
 			$('#' + id + ' .finish').on('click', function(){
+				// var typePosted = $('#' + id + ' .type').val();
+				textPosted = $('#' + id + ' .text').val();
+				//テキストが変更された場合、update-textイベントを送る。
+				console.log(typePosted);
+				var submit = {'type':typePosted, 'text':textPosted};
+				socket.emit('update-text',{_id:id,type:submit.type,text:submit.text});
+				// 表示モードに切り替える
 				$('#' + id + ' .type').replaceWith('<span class="type"/>');
+				$('#' + id + ' .type').text('[' + typePosted + '] ');
 				$('#' + id + ' .text').replaceWith('<span class="text"/>');
-				$('#' + id + ' .text').text($text.val());
+				$('#' + id + ' .text').text(textPosted);
 				$('#' + id + ' .finish').replaceWith('<a href="#" class="edit">edit</a>');
 			});
 		});
