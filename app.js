@@ -85,6 +85,7 @@ io.sockets.on('connection',function(socket){
             if(err || todo === null){return;}
             todo.type = data.type;
             todo.text = data.text;
+            todo.date = new Date();
             todo.save();
             socket.broadcast.json.emit('update-text',data);
         });

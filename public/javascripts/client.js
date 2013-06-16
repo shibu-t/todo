@@ -12,10 +12,6 @@ jQuery(function($) {
 	socket.on('update-text',function(data){
 		$('#'+data._id).find('.text').val(data.text);
 	});
-	//moveイベントを受信した時、メモの位置をアニメーションさせる。
-	socket.on('move',function(data){
-		$('#'+data._id).animate(data.position);
-	});
 	//removeイベントを受信した時、メモを削除する。
 	socket.on('remove',function(data){
 		removeTodo(data._id);
@@ -39,23 +35,27 @@ jQuery(function($) {
 		}
 		
 		var element =
-			$('<div class="todo"/>')
-			.attr('id',id)
-			.append($('<div class="settings">')
-				.append('<a href="#" class="remove-button">☓</a>')
-			)
-			.append($('<div/>')
-				.append($('<span class="type"></span>')
+			$('<ul class="todo"/>')
+				.attr('id',id)
+				.append($('<li class="settings"/>')
+					.append('<a href="#" class="remove-button">☓</a>')
+				)
+				.append($('<li class="type"></li>')
 					.text('[' + todoData.type + '] ')
 				)
-				.append($('<span class="text"></span>')
+				.append($('<li class="text"></li>')
 					.text(todoData.text)
 				)
 				.append($('<a href="#" class="edit">edit</a>')
-				)
-			);
+				);
 		element.hide().fadeIn();
-		$('#field').append(element);
+		if (todoData.type === 'will do') {
+			$('#will_area').append(element);
+		} else if (todoData.type === 'doing') {
+			$('#doing_area').append(element);
+		} else {
+			$('#done_area').append(element);
+		}
 
 		// editボタンを押したらtextarea表示
 		$(document).on('click', '#' + id + ' .edit', function(){
